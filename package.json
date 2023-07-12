@@ -19,6 +19,8 @@
   },
   "dependencies": {
     "@heroicons/react": "1.0.6",
+    "@radix-ui/react-avatar": "1.0.3",
+    "@radix-ui/react-popover": "1.0.6",
     "@supabase/auth-ui-react": "0.4.2",
     "@supabase/auth-ui-shared": "0.1.6",
     "bcryptjs": "2.4.3",
@@ -36,11 +38,13 @@
     "react-dom": "18.2.0",
     "server-only": "0.0.1",
     "styled-components": "6.0.0-beta.2",
+    "swr": "2.2.0",
     "use-count-up": "3.0.1",
     "yup": "1.2.0"
   },
   "devDependencies": {
     "@prisma/client": "4.16.2",
+    "@radix-ui/react-dropdown-menu": "2.0.5",
     "@supabase/auth-helpers-nextjs": "latest",
     "@supabase/supabase-js": "latest",
     "@tailwindcss/forms": "0.5.3",
@@ -58,11 +62,13 @@
     "eslint": "8.30.0",
     "eslint-config-next": "latest",
     "lint-staged": "13.1.0",
+    "lucide-react": "0.259.0",
     "next-pwa": "^5.6.0",
     "postcss": "8.4.20",
     "prettier": "2.8.1",
     "prettier-plugin-tailwindcss": "0.2.1",
     "prisma": "4.16.2",
+    "tailwind-merge": "1.13.2",
     "tailwindcss": "3.3.1",
     "typescript": "4.9.4"
   }

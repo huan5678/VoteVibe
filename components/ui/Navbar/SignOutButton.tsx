@@ -2,7 +2,7 @@
 
 import {useRouter} from 'next/navigation';
 import s from './Navbar.module.css';
-import {useSupabase} from '#/app/supabase-provider';
+import {useSupabase} from '#/components/providers/supabase-provider';
 
 export default function SignOutButton() {
   const router = useRouter();

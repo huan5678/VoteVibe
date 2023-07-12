@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import {createServerSupabaseClient} from '#/app/supabase-server';
+import {createServerSupabaseClient} from '#/utils/supabase-server';
 import SignOutButton from './SignOutButton';
 
 import s from './Navbar.module.css';
