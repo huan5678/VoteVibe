@@ -1,0 +1,90 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["views"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("NEXT_PUBLIC_DB_URL")
+}
+
+model User {
+  id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email     String    @unique @db.VarChar(100)
+  password  String
+  name      String    @db.VarChar(50)
+  role      Role      @default(USER)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  loginedAt DateTime?
+  detail    User_Detail?
+  Polls        Poll[]
+  Votes        Vote[]
+  Comments     Comment[]
+  Notifications Notification[]
+}
+
+model User_Detail {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  avatar_url String?
+  full_name String?
+  gender String?
+  birthday DateTime?
+  address Json?
+  phone String?
+  userId String @unique
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Poll {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title       String
+  description String
+  options     Json
+  createdById String
+  createdBy   User     @relation(fields: [createdById], references: [id])
+  Votes       Vote[]
+  Comments    Comment[]
+}
+
+model Vote {
+  id     String @id @default(uuid())
+  pollId String
+  poll   Poll   @relation(fields: [pollId], references: [id])
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+  option Int
+}
+
+model Comment {
+  id     String @id @default(uuid())
+  text   String
+  pollId String
+  poll   Poll   @relation(fields: [pollId], references: [id])
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+}
+
+model Notification {
+  id       String @id @default(uuid())
+  userId   String
+  user     User   @relation(fields: [userId], references: [id])
+  message  String
+  read     Boolean @default(false)
+}
+
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum TimeUnit {
+  Y
+  M
+  D
+  W
+  H
+  m
+  s
+}
