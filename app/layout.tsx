@@ -1,6 +1,6 @@
 import '#/styles/globals.css';
 import {Metadata} from 'next';
-import SupabaseProvider from './supabase-provider';
+import SupabaseProvider from '#/components/providers/supabase-provider';
 
 export const metadata: Metadata = {
   title: {

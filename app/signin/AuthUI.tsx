@@ -3,7 +3,7 @@
 import {Auth} from '@supabase/auth-ui-react';
 import {ThemeSupa} from '@supabase/auth-ui-shared';
 import {Provider} from '@supabase/supabase-js';
-import {useSupabase} from '../supabase-provider';
+import {useSupabase} from '../../components/providers/supabase-provider';
 import {getURL} from '#/utils/helper';
 import {useMemo} from 'react';
 
