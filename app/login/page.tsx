@@ -1,6 +1,6 @@
 'use client'
 
-import {useMemo, useState} from 'react';
+import {useState} from 'react';
 import { useRouter } from 'next/navigation'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import Link from 'next/link'
@@ -12,8 +12,6 @@ export default function Login() {
   const [view, setView] = useState('sign-in');
   const router = useRouter();
   const supabase = createClientComponentClient();
-
-  const provider = useMemo(() => ['google', 'discord', 'facebook', 'github'], []);
 
   const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

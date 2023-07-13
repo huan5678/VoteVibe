@@ -1,82 +1,103 @@
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = ["views"]
+  previewFeatures = ["multiSchema"]
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("NEXT_PUBLIC_DB_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+  schemas   = ["public", "auth"]
 }
 
 model User {
-  id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  email     String    @unique @db.VarChar(100)
-  password  String
-  name      String    @db.VarChar(50)
-  role      Role      @default(USER)
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  loginedAt DateTime?
-  detail    User_Detail?
-  Polls        Poll[]
-  Votes        Vote[]
-  Comments     Comment[]
+  id            String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email         String         @unique @db.VarChar(100)
+  password      String
+  name          String         @db.VarChar(50)
+  role          Role           @default(USER)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @default(now()) @updatedAt
+  loginedAt     DateTime?
+  detail        User_Detail?
+  Polls         Poll[]
+  Votes         Vote[]
+  Comments      Comment[]
   Notifications Notification[]
+
+  @@schema("auth")
 }
 
 model User_Detail {
-  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   avatar_url String?
-  full_name String?
-  gender String?
-  birthday DateTime?
-  address Json?
-  phone String?
-  userId String @unique
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  full_name  String?
+  gender     String?
+  birthday   DateTime?
+  address    Json?
+  phone      String?
+  userId     String    @unique @db.Uuid
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@schema("auth")
 }
 
 model Poll {
-  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   title       String
   description String
   options     Json
-  createdById String
-  createdBy   User     @relation(fields: [createdById], references: [id])
+  createdById String    @db.Uuid
+  createdBy   User      @relation(fields: [createdById], references: [id])
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @default(now()) @updatedAt
+  startedAt   DateTime?
   Votes       Vote[]
   Comments    Comment[]
+
+  @@schema("public")
 }
 
 model Vote {
   id     String @id @default(uuid())
-  pollId String
+  pollId String @db.Uuid
   poll   Poll   @relation(fields: [pollId], references: [id])
-  userId String
+  userId String @db.Uuid
   user   User   @relation(fields: [userId], references: [id])
   option Int
+
+  @@schema("public")
 }
 
 model Comment {
-  id     String @id @default(uuid())
-  text   String
-  pollId String
-  poll   Poll   @relation(fields: [pollId], references: [id])
-  userId String
-  user   User   @relation(fields: [userId], references: [id])
+  id        String   @id @default(uuid())
+  text      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+  pollId    String   @db.Uuid
+  poll      Poll     @relation(fields: [pollId], references: [id])
+  userId    String   @db.Uuid
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@schema("public")
 }
 
 model Notification {
-  id       String @id @default(uuid())
-  userId   String
-  user     User   @relation(fields: [userId], references: [id])
-  message  String
-  read     Boolean @default(false)
-}
+  id        String   @id @default(uuid())
+  userId    String   @db.Uuid
+  user      User     @relation(fields: [userId], references: [id])
+  message   String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
 
+  @@schema("public")
+}
 
 enum Role {
   USER
   ADMIN
+
+  @@schema("public")
 }
 
 enum TimeUnit {
@@ -87,4 +108,6 @@ enum TimeUnit {
   H
   m
   s
+
+  @@schema("public")
 }
