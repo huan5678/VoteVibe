@@ -19,12 +19,12 @@
     "*": "prettier --write --ignore-unknown"
   },
   "dependencies": {
-    "@github/webauthn-json": "2.1.1",
     "@heroicons/react": "1.0.6",
+    "@passageidentity/passage-auth": "0.1.0-beta.28",
     "@passageidentity/passage-elements": "1.9.3",
+    "@passageidentity/passage-node": "2.4.0",
     "@radix-ui/react-avatar": "1.0.3",
     "@radix-ui/react-popover": "1.0.6",
-    "@simplewebauthn/server": "7.3.1",
     "@supabase/auth-ui-react": "0.4.2",
     "@supabase/auth-ui-shared": "0.1.6",
     "bcryptjs": "2.4.3",
@@ -32,8 +32,6 @@
     "date-fns": "2.29.3",
     "dayjs": "1.11.9",
     "dinero.js": "2.0.0-alpha.8",
-    "firebase": "10.0.0",
-    "firebase-admin": "11.9.0",
     "imgur": "2.3.0",
     "iron-session": "6.3.1",
     "jsonwebtoken": "9.0.1",
@@ -44,7 +42,6 @@
     "react-dom": "18.2.0",
     "server-only": "0.0.1",
     "standard-version": "9.5.0",
-    "styled-components": "6.0.0-beta.2",
     "swr": "2.2.0",
     "use-count-up": "3.0.1",
     "yup": "1.2.0"
