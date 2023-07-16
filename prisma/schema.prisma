@@ -1,13 +1,12 @@
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = ["multiSchema"]
+  previewFeatures = ["views"]
 }
 
 datasource db {
   provider  = "postgresql"
   url       = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
-  schemas   = ["public", "auth"]
 }
 
 model User {
@@ -18,28 +17,48 @@ model User {
   role          Role           @default(USER)
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @default(now()) @updatedAt
-  loginedAt     DateTime?
   detail        User_Detail?
+  credentials   Credential[]
   Polls         Poll[]
   Votes         Vote[]
   Comments      Comment[]
   Notifications Notification[]
 
-  @@schema("auth")
 }
 
 model User_Detail {
   id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   avatar_url String?
   full_name  String?
-  gender     String?
+  gender     Gender?
   birthday   DateTime?
   address    Json?
   phone      String?
+  updatedAt  DateTime  @default(now()) @updatedAt
   userId     String    @unique @db.Uuid
   user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@schema("auth")
+}
+
+model Credential {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user       User     @relation(fields: [userId], references: [id])
+  userId     String   @unique @db.Uuid
+  name       String?
+  externalId String   @unique
+  publicKey  Bytes    @unique
+  signCount  Int      @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+}
+
+model Category {
+  id        String   @id @default(uuid())
+  name      String
+  updatedAt DateTime @default(now()) @updatedAt
+  Polls     Poll[]
+
 }
 
 model Poll {
@@ -47,6 +66,8 @@ model Poll {
   title       String
   description String
   options     Json
+  categoryId  String
+  category    Category  @relation(fields: [categoryId], references: [id])
   createdById String    @db.Uuid
   createdBy   User      @relation(fields: [createdById], references: [id])
   createdAt   DateTime  @default(now())
@@ -55,18 +76,17 @@ model Poll {
   Votes       Vote[]
   Comments    Comment[]
 
-  @@schema("public")
 }
 
 model Vote {
-  id     String @id @default(uuid())
-  pollId String @db.Uuid
-  poll   Poll   @relation(fields: [pollId], references: [id])
-  userId String @db.Uuid
-  user   User   @relation(fields: [userId], references: [id])
-  option Int
+  id        String   @id @default(uuid())
+  pollId    String   @db.Uuid
+  poll      Poll     @relation(fields: [pollId], references: [id])
+  userId    String   @db.Uuid
+  user      User     @relation(fields: [userId], references: [id])
+  option    Int
+  updatedAt DateTime @default(now()) @updatedAt
 
-  @@schema("public")
 }
 
 model Comment {
@@ -79,7 +99,6 @@ model Comment {
   userId    String   @db.Uuid
   user      User     @relation(fields: [userId], references: [id])
 
-  @@schema("public")
 }
 
 model Notification {
@@ -89,15 +108,14 @@ model Notification {
   message   String
   read      Boolean  @default(false)
   createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
 
-  @@schema("public")
 }
 
 enum Role {
   USER
   ADMIN
 
-  @@schema("public")
 }
 
 enum TimeUnit {
@@ -109,5 +127,11 @@ enum TimeUnit {
   m
   s
 
-  @@schema("public")
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+
 }

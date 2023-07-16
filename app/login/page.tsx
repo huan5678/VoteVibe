@@ -1,56 +1,9 @@
-'use client'
-
-import {useState} from 'react';
-import {useRouter} from 'next/navigation';
-import {createClientComponentClient} from '@supabase/auth-helpers-nextjs';
 import Link from 'next/link';
-import {Provider} from '@supabase/supabase-js';
 import {LoginForm} from './form';
+import {generateChallenge} from '#/lib/auth';
 
 export default function Login() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [view, setView] = useState('sign-in');
-  const router = useRouter();
-  const supabase = createClientComponentClient();
-
-  const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: `${location.origin}/auth/callback`,
-      },
-    });
-    setView('check-email');
-  };
-
-  const handleSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    router.push('/');
-    router.refresh();
-  };
-
-  const handleLoginWithOAuth = async (provider: Provider) => {
-    await supabase.auth.signInWithOAuth({
-      provider,
-      options: {
-        redirectTo: `${location.origin}/auth/callback`,
-      },
-    });
-  };
-
-  const onEnrolled = async () => {};
-
-  const onCancelled = async () => {
-    console.log('cancelled');
-  };
-
+  const challenge = generateChallenge();
   return (
     <div className="flex w-full flex-1 flex-col justify-center gap-2 bg-gray-50 px-8 sm:max-w-md">
       <Link
@@ -73,61 +26,7 @@ export default function Login() {
         </svg>{' '}
         Back
       </Link>
-      {view === 'check-email' ? (
-        <p className="text-foreground text-center">
-          Check <span className="font-bold">{email}</span> to continue signing up
-        </p>
-      ) : (
-        <form
-          className="text-foreground flex w-full flex-1 flex-col justify-center gap-2"
-          onSubmit={view === 'sign-in' ? handleSignIn : handleSignUp}
-        >
-          <label className="text-md" htmlFor="email">
-            Email
-          </label>
-          <input
-            className="mb-6 rounded-md border bg-inherit px-4 py-2"
-            name="email"
-            onChange={(e) => setEmail(e.target.value)}
-            value={email}
-            placeholder="you@example.com"
-          />
-          <label className="text-md" htmlFor="password">
-            Password
-          </label>
-          <input
-            className="mb-6 rounded-md border bg-inherit px-4 py-2"
-            type="password"
-            name="password"
-            onChange={(e) => setPassword(e.target.value)}
-            value={password}
-            placeholder="••••••••"
-          />
-          {view === 'sign-in' && (
-            <>
-              <button className="mb-6 rounded bg-green-700 px-4 py-2 text-white">Sign In</button>
-              <p className="text-center text-sm">
-                Don't have an account?
-                <button className="ml-1 underline" onClick={() => setView('sign-up')}>
-                  Sign Up Now
-                </button>
-              </p>
-            </>
-          )}
-          {view === 'sign-up' && (
-            <>
-              <button className="mb-6 rounded bg-green-700 px-4 py-2 text-white">Sign Up</button>
-              <p className="text-center text-sm">
-                Already have an account?
-                <button className="ml-1 underline" onClick={() => setView('sign-in')}>
-                  Sign In Now
-                </button>
-              </p>
-            </>
-          )}
-        </form>
-      )}
-      <LoginForm />
+      <LoginForm challenge={challenge} />
     </div>
   );
 }
