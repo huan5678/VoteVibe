@@ -1,4 +1,21 @@
-// `app/dashboard/page.tsx` is the UI for the `/dashboard` URL
-export default function Page() {
-  return <h1>Hello, Dashboard Page!</h1>;
-}
+import {FC} from 'react';
+import DashboardContent from './Content';
+import Link from 'next/link';
+
+interface pageProps {}
+
+const page: FC<pageProps> = ({}) => {
+  return (
+    <>
+      <DashboardContent />
+      <div className="flex flex-col items-center mt-10 mb-20">
+        <Link href="/">Back to Home</Link>
+        <Link href="/blog" className="mt-5">
+          Blog(protected route)
+        </Link>
+      </div>
+    </>
+  );
+};
+
+export default page;
