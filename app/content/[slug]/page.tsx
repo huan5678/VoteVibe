@@ -1,58 +1,36 @@
-import fs from 'fs';
-import path from 'path';
-import matter from 'gray-matter';
-import remarkGfm from 'remark-gfm';
+import {getFileBySlug} from '#/lib/mdx';
+import {MDXLayoutRenderer} from '#/components/mdx';
+import ArticlePanel from '#/components/ui/Articles/ArticlePanel';
+import ArticleTableOfContents from '#/components/ui/Articles/ArticleTableOfContents';
+import ContentWrapper from '#/layouts/ContentWrapper';
 
-import {MDXRemote} from 'next-mdx-remote/rsc';
+const Page = async ({params}: any) => {
+  const contents = getFileBySlug('contents', params.slug);
+  const {code, toc, frontMatter} = (await contents) as any;
 
-const options = {
-  mdxOptions: {
-    remarkPlugins: [remarkGfm],
-    rehypePlugins: [],
-  },
+  return (
+    <>
+      <div
+        className="bg-sky-100 dark:bg-sky-950"
+        style={{height: '100px', marginTop: '-100px'}}
+      ></div>
+      <ArticlePanel frontMatter={frontMatter} />
+      <ContentWrapper>
+        <div className="sticky top-0 bg-white dark:bg-black" style={{height: '64px'}}></div>
+        <section className="flex justify-between space-x-28">
+          <section
+            className="reset dark:reset-dark flex-auto"
+            style={{width: '100%', maxWidth: 'none', marginTop: '100px'}}
+          >
+            <MDXLayoutRenderer code={code} />
+          </section>
+          <section className="hidden sm:block" style={{marginTop: '100px', width: '200px'}}>
+            <ArticleTableOfContents headings={toc} />
+          </section>
+        </section>
+      </ContentWrapper>
+    </>
+  );
 };
 
-export async function generateStaticParams() {
-  const files = fs.readdirSync(path.join('contents'));
-
-  console.log('generateStaticParams-files', files);
-
-  const paths = files.map((filename) => ({
-    slug: filename.replace('.mdx', ''),
-  }));
-
-  return paths;
-}
-
-export async function generateMetadata({params}: any) {
-  const content = getPost(params);
-
-  return {
-    title: content.frontMatter.title,
-    description: content.frontMatter.description,
-  };
-}
-
-function getPost({slug}: {slug: string}) {
-  const markdownFile = fs.readFileSync(path.join('contents', slug + '.mdx'), 'utf-8');
-
-  const {data: frontMatter, content} = matter(markdownFile);
-
-  return {
-    frontMatter,
-    slug,
-    content,
-  };
-}
-
-export default async function Page({params}: {params: {slug: string}}) {
-  const props = getPost(params);
-  return (
-    <article className="prose prose-sm md:prose-base lg:prose-lg prose-slate !prose-invert mx-auto">
-      <h1>{props.frontMatter.title}</h1>
-
-      {/* @ts-expect-error Server Component*/}
-      <MDXRemote source={props.content} options={options} />
-    </article>
-  );
-}
+export default Page;

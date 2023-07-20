@@ -1,0 +1,82 @@
+---
+title: Next.js 13.4
+publishedOn: '2023-05-09T03:05:58.626Z'
+updatedOn: '2023-05-09T03:05:58.626Z'
+# title: How I Built My Blog
+# seoTitle: How I Built my Blog using MDX, Next.js, and React
+# abstract: An in-depth look at the technical structure for my blog.
+# isPublished: true
+# publishedOn: 2021-04-20T09:15:00-0400
+# layout: Article
+
+---
+
+Next.js是一個輕量級的React服務器渲染應用框架。
+
+## 創建項目
+
+使用`npx`快速創建一個Next.js項目。
+
+```bash
+npx create-next-app@latest
+```
+
+## 路由
+
+當前Next.js的版本是`13.4`，現在支持兩種路由模式：
+
+- Pages Router：一個基於文件系統的路由器。
+- App Router：Next.js新增的路由模式。
+
+> 兩種路由模式可以同時使用，Pages Router相對來說比較簡單，App Router新增了一些概念。
+
+### Pages Router
+
+在根目錄的`pages`文件夾下，每一個文件都可以是一個頁面，文件名就是路由的路徑名稱。
+
+**例如：**
+
+創建一個基本路由
+
+- 創建一個 `pages/about.js` 文件，可以是`.js`、 `jsx` 或 `ts` 、`tsx`
+- 打開 [http://localhost:3000/about](http://localhost:3000/about)，就能看到`about.js`的內容。
+
+還可以創建嵌套路由、動態路由
+
+- `pages/blog/first-post.js`→`/blog/first-post`  嵌套路由
+- `pages/blog/[slug].js` → `/blog/[fileName]`  動態路由
+
+### App Router
+
+在根目錄的`pages`文件夾下，支持共享佈局、嵌套路由、加載狀態、錯誤處理等，路由的匹配模式和**Pages Router**基本相同，新增了幾個特殊文件。
+
+新增了幾個特殊文件：
+
+- `page.js`- 作為頁面的唯一出口，文件下面必須要有`page.js`會被識別。
+- layout.js - 頁面佈局的組件，會自動包裹 `page.js`
+- loading.js- 頁面加載時的組件，需要使用`Suspense`元素
+- error.js - 頁面報錯時的組件
+- Not-font.js - 報錯或者頁面不匹配顯示的空頁面
+
+## 獲取數據
+
+使用不同的路由，獲取數據的方式也不同。
+
+- 使用 **Pages Router**
+
+  - getStaticProps- 在構建時獲取數據
+  - getServerSideProps - 可以完成服務器的請求
+
+  > 在 Pages Router 模式中，這兩個方法基本上可以滿足獲取數據的需求。
+
+- 使用**App Router**
+
+  - 共享數據使用全局單例模式提供數據
+  - 或者直接在組件內使用同步函數`async await`請求數據
+
+  > 組件函數定義為 `async` 函數時，會導致打包報錯，官方還沒有好的解決方案，提供 ts 註釋臨時解決：
+  >
+  > ```tsx
+  >  {/* @ts-expect-error Async Server Component */}
+  > <AsyncComponentName />
+  > ```

@@ -2,6 +2,7 @@ import Link from 'next/link';
 import {cookies} from 'next/headers';
 import {createServerComponentClient} from '@supabase/auth-helpers-nextjs';
 import Navbar from '#/components/ui/Navbar/Navbar';
+import TypewriterText from '#/components/TypewriterText';
 
 export default async function Index() {
   const supabase = createServerComponentClient({cookies});
@@ -34,6 +35,7 @@ export default async function Index() {
         </div>
 
         <div className="via-foreground/10 w-full bg-gradient-to-r from-transparent to-transparent p-[1px]" />
+        <TypewriterText innerText="未完待續..." className="text-2xl font-bold tracking-[.25rem]" />
       </div>
     </div>
   );

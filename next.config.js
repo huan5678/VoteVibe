@@ -11,6 +11,11 @@
 //   ...nextConfig
 // })
 
-const nextConfig = {};
+const nextConfig = {
+  experimental: {
+    serverActions: true,
+    appDir: true,
+  },
+};
 
 module.exports = nextConfig;
