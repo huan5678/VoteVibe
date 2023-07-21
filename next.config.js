@@ -11,11 +11,16 @@
 //   ...nextConfig
 // })
 
+
 const nextConfig = {
   experimental: {
     serverActions: true,
     appDir: true,
+    esmExternals: 'loose',
   },
+  transpilePackages: ['react-md-editor'],
 };
 
-module.exports = nextConfig;
+const removeImports = require('next-remove-imports')();
+
+module.exports = removeImports(nextConfig);

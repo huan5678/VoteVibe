@@ -17,7 +17,7 @@ export default async function ArticleList() {
           return (
             <li key={slug} className="py-12">
               <article>
-                <Link href={`/posts/${slug}`}>
+                <Link href={`/content/${slug}`}>
                   <h2>{title}</h2>
                   {/* <h4 className='line-clamp-2 text-gray-400 dark:text-while' >{summary}12312331</h4> */}
                   <p className="text-xs text-gray-400">
