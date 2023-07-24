@@ -11,16 +11,18 @@
 //   ...nextConfig
 // })
 
-
 const nextConfig = {
   experimental: {
-    serverActions: true,
     appDir: true,
-    esmExternals: 'loose',
+    serverActions: true,
+    esmExternals: "loose",
   },
-  transpilePackages: ['react-md-editor'],
+  transpilePackages: ["react-md-editor"],
+  images: {
+    domains: ["kcpwjljussfyxrzkkzoe.supabase.co"],
+  },
 };
 
-const removeImports = require('next-remove-imports')();
+const removeImports = require("next-remove-imports")();
 
 module.exports = removeImports(nextConfig);
