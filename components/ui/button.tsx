@@ -1,6 +1,7 @@
 import * as React from 'react';
 import {Slot} from '@radix-ui/react-slot';
 import {cva, type VariantProps} from 'class-variance-authority';
+import {FocusRing} from '@react-aria/focus';
 
 import {cn} from '#/utils';
 
@@ -40,7 +41,9 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({className, variant, size, asChild = false, ...props}, ref) => {
     const Comp: React.ElementType = asChild ? Slot : 'button';
     return (
-      <Comp className={cn(buttonVariants({variant, size, className}))} ref={ref} {...props} />
+      <FocusRing focusRingClass="ring ring-offset-2 ring-offset-black">
+        <Comp className={cn(buttonVariants({variant, size, className}))} ref={ref} {...props} />
+      </FocusRing>
     ) as JSX.Element;
   }
 );
