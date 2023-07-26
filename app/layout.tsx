@@ -2,6 +2,7 @@ import "#/styles/global.css";
 import { Metadata } from "next";
 import SupabaseProvider from "#/components/providers/supabase-provider";
 import { Toaster } from "#/components/ui/toaster";
+import {ThemeProvider} from '#/components/providers/ThemeProvider';
 
 export const metadata: Metadata = {
   title: {
@@ -20,12 +21,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="">
-        {/* <SupabaseProvider> */}
-        <main className="md:min-h[calc(100dvh-5rem)] min-h-[calc(100dvh-4rem)]">
-          {children}
-        </main>
-        <Toaster />
-        {/* </SupabaseProvider> */}
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          {/* <SupabaseProvider> */}
+          <main className="md:min-h[calc(100dvh-5rem)] min-h-[calc(100dvh-4rem)]">{children}</main>
+          <Toaster />
+          {/* </SupabaseProvider> */}
+        </ThemeProvider>
       </body>
     </html>
   );
