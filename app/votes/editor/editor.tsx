@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { use, useCallback, useEffect, useState } from "react";
 import Image from "next/image";
 import { useFieldArray, useForm, useFormContext } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -28,6 +28,7 @@ import { RadioGroup, RadioGroupItem } from "#/components/ui/radio-group";
 import { Card, CardContent, CardHeader, CardTitle } from "#/components/ui/card";
 import { useToast } from "#/components/ui/use-toast";
 import { MdEdit } from "./MdEdit";
+import { Separator } from "#/components/ui/separator";
 
 export type FormValues = {
   voteTitle: string;
@@ -37,7 +38,7 @@ export type FormValues = {
     isEditing: boolean;
   }[];
   voteType: "public" | "private";
-  voteImageUrl: string;
+  voteImageUrl: string | Promise<string>;
 };
 
 const formSchema = z.object({
@@ -165,7 +166,18 @@ const VoteContent = ({
 };
 
 export default function VoteForm() {
-  const defaultImage = "/ballot_vote.svg";
+  const [defaultImagePath, setDefaultImagePath] = useState("");
+
+  const defaultImage = useCallback(async () => {
+    const res = await fetch("/api/getRandomImage");
+    const data = await res.json();
+    setDefaultImagePath(data.name);
+  }, []);
+
+  useEffect(() => {
+    defaultImage();
+    console.log("defaultImagePath", defaultImagePath);
+  }, [defaultImage, defaultImagePath]);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -174,7 +186,7 @@ export default function VoteForm() {
       voteDescription: "",
       voteOptions: [],
       voteType: "public",
-      voteImageUrl: defaultImage,
+      voteImageUrl: defaultImagePath as string,
     },
   });
 
@@ -208,12 +220,13 @@ export default function VoteForm() {
           <CardTitle className="text-3xl">發起新投票</CardTitle>
         </CardHeader>
         <CardContent className="grid gap-4">
+          <Separator />
           <Form {...form}>
             <form
               className="flex flex-col gap-4"
               onSubmit={handleSubmit(onSubmit)}
             >
-              <div className="flex justify-between gap-2">
+              <div className="felx-col flex justify-between gap-2 md:flex-row">
                 <FormField
                   control={control}
                   name="voteTitle"
@@ -268,49 +281,50 @@ export default function VoteForm() {
                     </FormItem>
                   )}
                 />
-              </div>
-              <FormField
-                control={control}
-                name="voteImageUrl"
-                render={({ field }) => (
-                  <FormItem>
-                    <VoteContent name={field.name} type="label" />
-                    <FormControl>
-                      <div className="flex gap-4">
-                        {field.value.length > 0 && (
-                          <Card>
-                            <CardContent className="flex items-center justify-center p-2">
-                              <Image
-                                className="object-cover"
-                                src={field.value}
-                                alt="image"
-                                width={160}
-                                height={160}
-                              />
-                            </CardContent>
-                          </Card>
-                        )}
-                        <div className="flex flex-col gap-4">
-                          <UploadImage
-                            onUploadSuccess={(path) =>
-                              form.setValue("voteImageUrl", path)
-                            }
-                          />
-                          <Button
-                            onClick={() =>
-                              form.setValue("voteImageUrl", defaultImage)
-                            }
-                          >
-                            使用預設圖片
-                          </Button>
-                          <VoteContent name={field.name} type="description" />
+                <FormField
+                  control={control}
+                  name="voteImageUrl"
+                  render={({ field }) => (
+                    <FormItem>
+                      <VoteContent name={field.name} type="label" />
+                      <FormControl>
+                        <div className="flex gap-4">
+                          {field.value.length > 0 && (
+                            <Card>
+                              <CardContent className="flex items-center justify-center p-2">
+                                <Image
+                                  className="object-cover"
+                                  src={field.value}
+                                  alt="image"
+                                  width={160}
+                                  height={160}
+                                />
+                              </CardContent>
+                            </Card>
+                          )}
+                          <div className="flex flex-col gap-4">
+                            <UploadImage
+                              onUploadSuccess={(path) =>
+                                form.setValue("voteImageUrl", path)
+                              }
+                            />
+                            <Button
+                              type="button"
+                              onClick={() =>
+                                form.setValue("voteImageUrl", defaultImagePath)
+                              }
+                            >
+                              使用預設圖片
+                            </Button>
+                            <VoteContent name={field.name} type="description" />
+                          </div>
                         </div>
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
               <FormField
                 control={control}
                 name="voteOptions"
