@@ -15,11 +15,11 @@ const nextConfig = {
   experimental: {
     appDir: true,
     serverActions: true,
-    esmExternals: "loose",
+    esmExternals: 'loose',
   },
-  transpilePackages: ["react-md-editor"],
+  transpilePackages: ['react-md-editor'],
   images: {
-    domains: ["kcpwjljussfyxrzkkzoe.supabase.co"],
+    domains: ['kcpwjljussfyxrzkkzoe.supabase.co'],
   },
 };
 
