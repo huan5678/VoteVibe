@@ -1,47 +1,29 @@
 "use client";
 
-import {useCallback, useEffect, useState} from 'react';
+import {useEffect, useState} from 'react';
 import Image from 'next/image';
-import {useFieldArray, useForm, useFormContext} from 'react-hook-form';
+import {useFieldArray, useForm} from 'react-hook-form';
 import {zodResolver} from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import {Cross2Icon, PlusIcon} from '@radix-ui/react-icons';
 
-import '@uiw/react-md-editor/markdown-editor.css';
-import '@uiw/react-markdown-preview/markdown.css';
-
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '#/components/ui/form';
+import {Form, FormControl, FormField, FormItem, FormLabel, FormMessage} from '#/components/ui/form';
 
 import {Button} from '#/components/ui/button';
 import Input from '#/components/ui/input';
 
-import {supabase} from '#/lib/utils/connection';
 import {RadioGroup, RadioGroupItem} from '#/components/ui/radio-group';
 import {Card, CardContent, CardHeader, CardTitle} from '#/components/ui/card';
-import {useToast} from '#/components/ui/use-toast';
-import {MdEdit} from './MdEdit';
-import {Separator} from '#/components/ui/separator';
-import {Label} from '#/components/ui/label';
-import {getDeviceType} from '#/lib/utils/getDevice';
 
-export type FormValues = {
-  voteTitle: string;
-  voteDescription: string;
-  voteOptions: {
-    value: string;
-    isEditing: boolean;
-  }[];
-  voteType: 'public' | 'private';
-  voteImageUrl: string | Promise<string>;
-};
+import {Separator} from '#/components/ui/separator';
+import {getDeviceType} from '#/lib/utils/getDevice';
+import TipTapEdit from './TipTapEdit';
+import {Switch} from '#/components/ui/switch';
+import VoteContent from './VoteContent';
+import UploadImage from './UploadImage';
+
+import { DeviceType, VoteFormValues } from '#/types';
+
 
 const formSchema = z.object({
   voteTitle: z.string().min(2, {
@@ -55,106 +37,19 @@ const formSchema = z.object({
   }),
   voteType: z.enum(['public', 'private']),
   voteImageUrl: z.string(),
+  voteStartTime: z.optional(z.string()),
+  voteEndTime: z.optional(z.string()),
+  voteStartNow: z.boolean(),
 });
-
-function UploadImage({onUploadSuccess}: {onUploadSuccess: (path: string) => void}) {
-  const {register} = useFormContext<FormValues>();
-  const {toast} = useToast();
-
-  const onFileChange = useCallback(
-    async (event: React.ChangeEvent<HTMLInputElement>) => {
-      if (event.target.files?.length) {
-        const file = event.target.files[0];
-        const maxSize = 1024 * 1024 * 5; // SUPABASE limit file size 5MB
-
-        if (file.size > maxSize) {
-          toast({
-            variant: 'destructive',
-            title: 'Uh oh! Something went wrong.',
-            description: 'The file size exceeds the limit of 5MB.',
-          });
-          return;
-        }
-
-        const filePath = `${Date.now()}-${file.name}`; // Ensure the file name is unique
-
-        const {error} = await supabase.storage
-          .from('VoteImages')
-          .upload(`VoteCover/${filePath}`, file);
-
-        if (error) {
-          console.error('Error uploading image: ', error);
-        } else {
-          console.log('Image uploaded successfully');
-          const {data} = await supabase.storage
-            .from('VoteImages')
-            .getPublicUrl(`VoteCover/${filePath}`);
-          onUploadSuccess(data.publicUrl);
-        }
-      }
-    },
-    [onUploadSuccess, toast]
-  );
-  return (
-    <div className="grid w-full items-center gap-1.5">
-      <Label htmlFor="picture">上傳圖片</Label>
-      <Input
-        id="picture"
-        {...register('voteImageUrl')}
-        type="file"
-        accept="image/*"
-        onChange={onFileChange}
-      />
-    </div>
-  );
-}
-
-type VoteContentProps = {
-  name: string;
-  type: 'label' | 'description';
-  value?: unknown;
-};
-
-const VoteContent: React.FC<VoteContentProps> = ({name, type, value}) => {
-  switch (type) {
-    case 'label':
-      const title =
-        name === 'voteTitle'
-          ? '投票活動命題'
-          : name === 'voteType'
-          ? '是否公開'
-          : name === 'voteOptions'
-          ? '投票項目'
-          : name === 'voteImageUrl'
-          ? '投票活動封面'
-          : name === 'voteDescription'
-          ? '投票活動描述'
-          : null;
-      return <FormLabel>{title}</FormLabel>;
-    case 'description':
-      const description =
-        name === 'voteTitle'
-          ? '請輸入投票活動標題，不得低於兩個字'
-          : name === 'voteType'
-          ? value === 'public'
-            ? '所有人都可以看到投票內容'
-            : '只有獲得投票連結的人可以看到投票內容'
-          : name === 'voteOptions'
-          ? '候選項目'
-          : name === 'voteImageUrl'
-          ? '圖片大小僅 50MB 以下'
-          : name === 'voteDescription'
-          ? '用於活動的內文說明，支援Markdown語法 (1000 字以內 )'
-          : null;
-      return <FormDescription>{description}</FormDescription>;
-  }
-};
 
 export default function VoteForm() {
   const [defaultImagePath, setDefaultImagePath] = useState('');
-  const [deviceType, setDeviceType] = useState<'mobile' | 'tablet' | 'desktop' | null>(null);
+  const [deviceType, setDeviceType] = useState<DeviceType>(null);
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const [newOption, setNewOption] = useState('');
+  const [defaultEndTime, setDefaultEndTime] = useState<Date | undefined>();
 
-  const form = useForm<FormValues>({
+  const form = useForm<VoteFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       voteTitle: '',
@@ -162,18 +57,13 @@ export default function VoteForm() {
       voteOptions: [],
       voteType: 'public',
       voteImageUrl: '',
+      voteStartTime: '',
+      voteEndTime: defaultEndTime,
+      voteStartNow: false,
     },
   });
 
-  const {
-    register,
-    control,
-    handleSubmit,
-    formState: {errors},
-    setValue,
-    trigger,
-    reset,
-  } = form;
+  const {register, control, handleSubmit, setValue, reset} = form;
 
   useEffect(() => {
     const fetchRandomImage = async () => {
@@ -184,6 +74,9 @@ export default function VoteForm() {
         voteImageUrl: data.name,
       });
       setDefaultImagePath(data.name);
+      const sevenDaysFromNow = new Date();
+      sevenDaysFromNow.setDate(sevenDaysFromNow.getDate() + 7);
+      setDefaultEndTime(sevenDaysFromNow);
     };
     fetchRandomImage();
   }, []);
@@ -196,24 +89,23 @@ export default function VoteForm() {
     return () => {
       window.removeEventListener('resize', handleResize);
     };
-  }, [getDeviceType]);
+  }, []);
 
   const {fields, append, remove} = useFieldArray({
     control,
     name: 'voteOptions',
   });
 
-  const [editingIndex, setEditingIndex] = useState<number | null>(null);
-  const [newOption, setNewOption] = useState('');
-
-  const onSubmit = (data: FormValues) => {
-    console.log(form.watch('voteImageUrl'));
-    console.log(form.getValues('voteImageUrl'));
-    console.log(data);
+  const onSubmit = (data: VoteFormValues) => {
+    console.log(
+      '%csubmit',
+      'color: white;background-color:black;padding:4px;border-radius:4px;font-size:14px;font-weight',
+      data
+    );
   };
 
   return (
-    <div className="container flex min-h-screen items-center justify-center">
+    <div className="container flex items-center justify-center min-h-screen">
       <Card className="min-h-[50vh] flex-auto">
         <CardHeader>
           <CardTitle className="text-3xl">發起新投票</CardTitle>
@@ -285,7 +177,7 @@ export default function VoteForm() {
                               <Card>
                                 <CardContent className="flex items-center justify-center p-2">
                                   <Image
-                                    className="object-cover"
+                                    className="object-cover rounded-md"
                                     src={field.value}
                                     alt="image"
                                     width={
@@ -306,7 +198,7 @@ export default function VoteForm() {
                                 </CardContent>
                               </Card>
                             )}
-                            <div className="flex flex-auto flex-col gap-4">
+                            <div className="flex flex-col flex-auto gap-4">
                               <UploadImage
                                 onUploadSuccess={(path) => form.setValue('voteImageUrl', path)}
                               />
@@ -335,7 +227,12 @@ export default function VoteForm() {
                     <FormControl>
                       <div className="flex flex-col gap-6">
                         {fields.map((field, index) => (
-                          <div className="flex items-center justify-between" key={field.id}>
+                          <div
+                            className={`flex items-center justify-between ${
+                              field !== fields.at(-1) ? 'border-b border-gray-200 pb-4' : ''
+                            }`}
+                            key={field.id}
+                          >
                             {index === editingIndex ? (
                               <Input
                                 placeholder=""
@@ -369,7 +266,7 @@ export default function VoteForm() {
                           </div>
                         ))}
 
-                        <div className="flex gap-2">
+                        <div className="flex items-center gap-2">
                           <Input
                             placeholder="新增投票選項"
                             value={newOption}
@@ -400,13 +297,63 @@ export default function VoteForm() {
                   <FormItem>
                     <VoteContent name={field.name} type="label" />
                     <FormControl>
-                      <MdEdit form={form} field={field} />
+                      <TipTapEdit form={form} field={field} device={deviceType} />
                     </FormControl>
                     <VoteContent name={field.name} type="description" />
                     <FormMessage />
                   </FormItem>
                 )}
               />
+              <div className="flex flex-col gap-4 md:flex-row md:items-center">
+                <FormField
+                  control={control}
+                  name="voteStartTime"
+                  render={({field}) => (
+                    <FormItem>
+                      <VoteContent name={field.name} type="label" />
+                      <FormControl>
+                        <Input
+                          type="datetime-local"
+                          disabled={form.watch('voteStartNow')}
+                          {...register('voteStartTime')}
+                        />
+                      </FormControl>
+                      <VoteContent name={field.name} type="description" />
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={control}
+                  name="voteEndTime"
+                  render={({field}) => (
+                    <FormItem>
+                      <VoteContent name={field.name} type="label" />
+                      <FormControl>
+                        <Input type="datetime-local" {...register('voteEndTime')} />
+                      </FormControl>
+                      <VoteContent name={field.name} type="description" />
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <div className="ml-auto">
+                  <FormField
+                    control={control}
+                    name="voteStartNow"
+                    render={({field}) => (
+                      <FormItem>
+                        <VoteContent name={field.name} type="label" />
+                        <FormControl className="ml-4">
+                          <Switch checked={field.value} onCheckedChange={field.onChange} />
+                        </FormControl>
+                        <VoteContent name={field.name} type="description" />
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
               <Button type="submit" className="ml-auto">
                 發起新投票
               </Button>

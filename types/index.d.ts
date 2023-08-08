@@ -1,2 +1,3 @@
-export {default as Supabase} from './supabase';
-export {default as TextField} from './textFields';
+export * from './global';
+export * from './supabase';
+export * from './textFields';
