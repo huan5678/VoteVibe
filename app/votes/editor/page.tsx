@@ -1,9 +1,9 @@
-import Editor from "./editor";
+import VoteDrawer from './Drawer';
 
 export default async function Page() {
   return (
     <>
-      <Editor />
+      <VoteDrawer />
     </>
   );
 }

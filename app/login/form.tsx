@@ -1,9 +1,11 @@
 'use client';
 
-import {ChangeEvent, FormEvent, useEffect, useState} from 'react';
+import {ChangeEvent, FormEvent, useState} from 'react';
 import {signIn} from 'next-auth/react';
 import {useSearchParams, useRouter} from 'next/navigation';
-import {Button, buttonVariants} from '#/components/ui/button';
+import {Button} from '#/components/ui/button';
+import Input from '#/components/ui/input';
+import {Label} from '#/components/ui/label';
 
 export const LoginForm = ({challenge}: {challenge: string}) => {
   const router = useRouter();
@@ -41,30 +43,23 @@ export const LoginForm = ({challenge}: {challenge: string}) => {
     setFormValues({...formValues, [name]: value});
   };
 
-  const input_style =
-    'form-control block w-full px-4 py-5 text-sm font-normal text-gray-700 bg-white bg-clip-padding border border-solid border-gray-300 rounded transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none';
-
   return (
     <>
       <form onSubmit={onSubmit}>
         {error && <p className="mb-6 rounded bg-red-300 py-4 text-center">{error}</p>}
-        <div className="mb-6">
-          <input
+        <div className="mb-6 flex flex-col gap-4">
+          <Label htmlFor="email">使用者帳號</Label>
+          <Input
             required
+            id="email"
             type="email"
             name="email"
             value={formValues.email}
             onChange={handleChange}
             placeholder="Email address"
-            className={`${input_style}`}
           />
         </div>
-        <Button
-          type="submit"
-          style={{backgroundColor: `${loading ? '#ccc' : '#3446eb'}`}}
-          className="inline-block w-full rounded bg-blue-600 px-7 py-4 text-sm font-medium uppercase leading-snug text-white shadow-md transition duration-150 ease-in-out hover:bg-blue-700 hover:shadow-lg focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-800 active:shadow-lg"
-          disabled={loading}
-        >
+        <Button className="block" type="submit" variant="primary" disabled={loading}>
           {loading ? 'loading...' : 'Sign In'}
         </Button>
 

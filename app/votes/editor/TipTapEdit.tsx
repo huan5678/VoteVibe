@@ -1,5 +1,3 @@
-'use client';
-
 import {Fragment, useState} from 'react';
 import {lowlight} from 'lowlight';
 import {useEditor, EditorContent, Editor} from '@tiptap/react';
@@ -246,8 +244,8 @@ const TipTapEdit: React.FC<TipTapEditProps> = ({form, field, device}: TipTapEdit
       Highlight,
       Placeholder.configure({
         placeholder: '請輸入內容...',
-        emptyNodeClass:
-          'cursor-text before:content-[attr(data-placeholder)] before:absolute before:top-2 before:left-2 before:text-mauve-11 before:opacity-50 before-pointer-events-none',
+        emptyEditorClass:
+          'before:content-[attr(data-placeholder)] before:text-gray-400 before:pointer-events-none before:h-0 before:float-left',
       }),
     ],
     onUpdate({editor}) {

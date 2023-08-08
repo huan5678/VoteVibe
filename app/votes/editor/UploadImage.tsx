@@ -6,10 +6,10 @@ import {Label} from '#/components/ui/label';
 import {useToast} from '#/components/ui/use-toast';
 import {supabase} from '#/lib/utils/connection';
 
-import {FormValues} from './editor';
+import {VoteFormValues} from '#/types';
 
 function UploadImage({onUploadSuccess}: {onUploadSuccess: (path: string) => void}) {
-  const {register} = useFormContext<FormValues>();
+  const {register} = useFormContext<VoteFormValues>();
   const {toast} = useToast();
 
   const onFileChange = useCallback(
