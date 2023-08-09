@@ -19,11 +19,12 @@ model User {
   updatedAt     DateTime       @default(now()) @updatedAt
   detail        User_Detail?
   credentials   Credential[]
-  Polls         Poll[]
-  Votes         Vote[]
-  Comments      Comment[]
-  Notifications Notification[]
-
+  polls         Poll[]
+  votes         Vote[]
+  comments      Comment[]
+  notifications Notification[]
+  followers     Follower[]     @relation("userFollowers")
+  following     Follower[]     @relation("followerUsers")
 }
 
 model User_Detail {
@@ -37,7 +38,6 @@ model User_Detail {
   updatedAt  DateTime  @default(now()) @updatedAt
   userId     String    @unique @db.Uuid
   user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-
 }
 
 model Credential {
@@ -50,32 +50,50 @@ model Credential {
   signCount  Int      @default(0)
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
-
-}
-
-model Category {
-  id        String   @id @default(uuid())
-  name      String
-  updatedAt DateTime @default(now()) @updatedAt
-  Polls     Poll[]
-
 }
 
 model Poll {
-  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  title       String
-  description String
-  options     Json
-  categoryId  String
-  category    Category  @relation(fields: [categoryId], references: [id])
-  createdById String    @db.Uuid
-  createdBy   User      @relation(fields: [createdById], references: [id])
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @default(now()) @updatedAt
+  id          String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  createdById String       @db.Uuid
+  createdBy   User         @relation(fields: [createdById], references: [id])
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @default(now()) @updatedAt
   startedAt   DateTime?
-  Votes       Vote[]
-  Comments    Comment[]
+  tags        Tag[]        @relation("tagPolls")
+  pollTags    PollTag[]    @relation("pollTag")
+  PollDetail  PollDetail[]
+  votes        Vote[]
+}
 
+model Tag {
+  id      String    @id @default(uuid())
+  name    String    @unique
+  polls   Poll[]    @relation("tagPolls")
+  PollTag PollTag[]
+}
+
+model PollTag {
+  pollId String @db.Uuid
+  tagId  String
+
+  poll Poll @relation("pollTag", fields: [pollId], references: [id])
+  tag  Tag  @relation(fields: [tagId], references: [id])
+
+  @@id([pollId, tagId])
+}
+
+model PollDetail {
+  id          String    @id @default(uuid())
+  pollId      String    @db.Uuid
+  title       String
+  type        Privacy
+  options     Json[]
+  imageUrl    String?
+  description String
+  poll        Poll      @relation(fields: [pollId], references: [id])
+  option      Int
+  updatedAt   DateTime  @default(now()) @updatedAt
+  comments    Comment[] @relation("pollDetailComments")
 }
 
 model Vote {
@@ -86,19 +104,27 @@ model Vote {
   user      User     @relation(fields: [userId], references: [id])
   option    Int
   updatedAt DateTime @default(now()) @updatedAt
-
 }
 
 model Comment {
-  id        String   @id @default(uuid())
-  text      String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
-  pollId    String   @db.Uuid
-  poll      Poll     @relation(fields: [pollId], references: [id])
-  userId    String   @db.Uuid
-  user      User     @relation(fields: [userId], references: [id])
+  id           String     @id @default(uuid())
+  content      String
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @default(now()) @updatedAt
+  pollDetailId String
+  pollDetail   PollDetail @relation("pollDetailComments", fields: [pollDetailId], references: [id])
+  userId       String     @db.Uuid
+  user         User       @relation(fields: [userId], references: [id])
+}
 
+model Follower {
+  userId     String @db.Uuid
+  followerId String @db.Uuid
+
+  user     User @relation("userFollowers", fields: [userId], references: [id])
+  follower User @relation("followerUsers", fields: [followerId], references: [id])
+
+  @@id([userId, followerId])
 }
 
 model Notification {
@@ -109,13 +135,11 @@ model Notification {
   read      Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
-
 }
 
 enum Role {
   USER
   ADMIN
-
 }
 
 enum TimeUnit {
@@ -126,12 +150,15 @@ enum TimeUnit {
   H
   m
   s
-
 }
 
 enum Gender {
   MALE
   FEMALE
   OTHER
+}
 
+enum Privacy {
+  PUBLIC
+  PRIVATE
 }

@@ -8,57 +8,56 @@ import * as z from 'zod';
 import {Cross2Icon, PlusIcon} from '@radix-ui/react-icons';
 
 import {Form, FormControl, FormField, FormItem, FormLabel, FormMessage} from '#/components/ui/form';
-
 import {Button} from '#/components/ui/button';
 import Input from '#/components/ui/input';
-
+import {Switch} from '#/components/ui/switch';
 import {RadioGroup, RadioGroupItem} from '#/components/ui/radio-group';
 import {Card, CardContent, CardHeader, CardTitle} from '#/components/ui/card';
-
 import {Separator} from '#/components/ui/separator';
+
 import {getDeviceType} from '#/lib/utils/getDevice';
+
 import TipTapEdit from './TipTapEdit';
-import {Switch} from '#/components/ui/switch';
-import VoteContent from './VoteContent';
+import PollContent from './PollContent';
 import UploadImage from './UploadImage';
 
-import {DeviceType, VoteFormValues} from '#/types';
+import {DeviceType, PollFormValues} from '#/types';
 
 const formSchema = z.object({
-  voteTitle: z.string().min(2, {
+  pollTitle: z.string().min(2, {
     message: '標題至少要兩個字',
   }),
-  voteDescription: z.string().max(1000, {
+  pollDescription: z.string().max(1000, {
     message: '內容描述最多 1000 字',
   }),
-  voteOptions: z.array(z.object({value: z.string(), isEditing: z.boolean()})).min(1, {
+  pollOptions: z.array(z.object({value: z.string(), isEditing: z.boolean()})).min(1, {
     message: '至少要一個選項',
   }),
-  voteType: z.enum(['public', 'private']),
-  voteImageUrl: z.string(),
-  voteStartTime: z.optional(z.string()),
-  voteEndTime: z.optional(z.string()),
-  voteStartNow: z.boolean(),
+  pollPrivateType: z.enum(['public', 'private']),
+  pollImageUrl: z.string(),
+  pollStartTime: z.optional(z.string()),
+  pollEndTime: z.optional(z.string()),
+  pollStartNow: z.boolean(),
 });
 
-export default function VoteForm() {
+export default function PollForm() {
   const [defaultImagePath, setDefaultImagePath] = useState('');
   const [deviceType, setDeviceType] = useState<DeviceType>(null);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [newOption, setNewOption] = useState('');
   const [defaultEndTime, setDefaultEndTime] = useState<Date | undefined>();
 
-  const form = useForm<VoteFormValues>({
+  const form = useForm<PollFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      voteTitle: '',
-      voteDescription: '',
-      voteOptions: [],
-      voteType: 'public',
-      voteImageUrl: '',
-      voteStartTime: '',
-      voteEndTime: defaultEndTime,
-      voteStartNow: false,
+      pollTitle: '',
+      pollDescription: '',
+      pollOptions: [],
+      pollPrivateType: 'public',
+      pollImageUrl: '',
+      pollStartTime: '',
+      pollEndTime: defaultEndTime,
+      pollStartNow: false,
     },
   });
 
@@ -70,7 +69,7 @@ export default function VoteForm() {
       const data = await res.json();
       reset({
         ...form.getValues(),
-        voteImageUrl: data.name,
+        pollImageUrl: data.name,
       });
       setDefaultImagePath(data.name);
       const sevenDaysFromNow = new Date();
@@ -95,10 +94,10 @@ export default function VoteForm() {
 
   const {fields, append, remove} = useFieldArray({
     control,
-    name: 'voteOptions',
+    name: 'pollOptions',
   });
 
-  const onSubmit = (data: VoteFormValues) => {
+  const onSubmit = (data: PollFormValues) => {
     console.log(
       '%csubmit',
       'color: white;background-color:black;padding:4px;border-radius:4px;font-size:14px;font-weight',
@@ -119,14 +118,14 @@ export default function VoteForm() {
               <div className="md:flex-auto">
                 <FormField
                   control={control}
-                  name="voteTitle"
+                  name="pollTitle"
                   render={({field}) => (
                     <FormItem>
-                      <VoteContent name={field.name} type="label" />
+                      <PollContent name={field.name} type="label" />
                       <FormControl>
-                        <Input placeholder="請輸入投票活動的名稱" {...register('voteTitle')} />
+                        <Input placeholder="請輸入投票活動的名稱" {...register('pollTitle')} />
                       </FormControl>
-                      <VoteContent name={field.name} type="description" />
+                      <PollContent name={field.name} type="description" />
                       <FormMessage />
                     </FormItem>
                   )}
@@ -135,10 +134,10 @@ export default function VoteForm() {
               <div>
                 <FormField
                   control={control}
-                  name="voteType"
+                  name="pollPrivateType"
                   render={({field}) => (
                     <FormItem>
-                      <VoteContent name={field.name} type="label" />
+                      <PollContent name={field.name} type="label" />
                       <FormControl>
                         <RadioGroup
                           onValueChange={field.onChange}
@@ -159,7 +158,7 @@ export default function VoteForm() {
                           </FormItem>
                         </RadioGroup>
                       </FormControl>
-                      <VoteContent name={field.name} type="description" value={field.value} />
+                      <PollContent name={field.name} type="description" value={field.value} />
                       <FormMessage />
                     </FormItem>
                   )}
@@ -168,10 +167,10 @@ export default function VoteForm() {
               <div className="md:w-full lg:w-auto">
                 <FormField
                   control={control}
-                  name="voteImageUrl"
+                  name="pollImageUrl"
                   render={({field}) => (
                     <FormItem>
-                      <VoteContent name={field.name} type="label" />
+                      <PollContent name={field.name} type="label" />
                       <FormControl>
                         <div className="flex flex-col gap-4 md:w-full md:flex-row md:gap-8">
                           {defaultImagePath && (
@@ -201,15 +200,15 @@ export default function VoteForm() {
                           )}
                           <div className="flex flex-auto flex-col gap-4">
                             <UploadImage
-                              onUploadSuccess={(path) => form.setValue('voteImageUrl', path)}
+                              onUploadSuccess={(path) => form.setValue('pollImageUrl', path)}
                             />
                             <Button
                               type="button"
-                              onClick={() => form.setValue('voteImageUrl', defaultImagePath)}
+                              onClick={() => form.setValue('pollImageUrl', defaultImagePath)}
                             >
                               使用預設圖片
                             </Button>
-                            <VoteContent name={field.name} type="description" />
+                            <PollContent name={field.name} type="description" />
                           </div>
                         </div>
                       </FormControl>
@@ -221,10 +220,10 @@ export default function VoteForm() {
             </div>
             <FormField
               control={control}
-              name="voteOptions"
+              name="pollOptions"
               render={({field}) => (
                 <FormItem>
-                  <VoteContent name={field.name} type="label" />
+                  <PollContent name={field.name} type="label" />
                   <FormControl>
                     <div className="flex flex-col gap-6">
                       {fields.map((field, index) => (
@@ -237,7 +236,7 @@ export default function VoteForm() {
                           {index === editingIndex ? (
                             <Input
                               placeholder=""
-                              {...register(`voteOptions.${index}.value`)}
+                              {...register(`pollOptions.${index}.value`)}
                               defaultValue={field.value}
                               onBlur={(e) => {
                                 fields[index].value = e.target.value;
@@ -277,7 +276,7 @@ export default function VoteForm() {
                           type="button"
                           onClick={() => {
                             const newFields = [...fields, {value: newOption, isEditing: false}];
-                            setValue('voteOptions', newFields);
+                            setValue('pollOptions', newFields);
                             setNewOption('');
                           }}
                         >
@@ -286,21 +285,21 @@ export default function VoteForm() {
                       </div>
                     </div>
                   </FormControl>
-                  <VoteContent name={field.name} type="description" />
+                  <PollContent name={field.name} type="description" />
                   <FormMessage />
                 </FormItem>
               )}
             />
             <FormField
               control={control}
-              name="voteDescription"
+              name="pollDescription"
               render={({field}) => (
                 <FormItem>
-                  <VoteContent name={field.name} type="label" />
+                  <PollContent name={field.name} type="label" />
                   <FormControl>
                     <TipTapEdit form={form} field={field} device={deviceType} />
                   </FormControl>
-                  <VoteContent name={field.name} type="description" />
+                  <PollContent name={field.name} type="description" />
                   <FormMessage />
                 </FormItem>
               )}
@@ -308,32 +307,32 @@ export default function VoteForm() {
             <div className="flex flex-col gap-4 md:flex-row md:items-center">
               <FormField
                 control={control}
-                name="voteStartTime"
+                name="pollStartTime"
                 render={({field}) => (
                   <FormItem>
-                    <VoteContent name={field.name} type="label" />
+                    <PollContent name={field.name} type="label" />
                     <FormControl>
                       <Input
                         type="datetime-local"
-                        disabled={form.watch('voteStartNow')}
-                        {...register('voteStartTime')}
+                        disabled={form.watch('pollStartNow')}
+                        {...register('pollStartTime')}
                       />
                     </FormControl>
-                    <VoteContent name={field.name} type="description" />
+                    <PollContent name={field.name} type="description" />
                     <FormMessage />
                   </FormItem>
                 )}
               />
               <FormField
                 control={control}
-                name="voteEndTime"
+                name="pollEndTime"
                 render={({field}) => (
                   <FormItem>
-                    <VoteContent name={field.name} type="label" />
+                    <PollContent name={field.name} type="label" />
                     <FormControl>
-                      <Input type="datetime-local" {...register('voteEndTime')} />
+                      <Input type="datetime-local" {...register('pollEndTime')} />
                     </FormControl>
-                    <VoteContent name={field.name} type="description" />
+                    <PollContent name={field.name} type="description" />
                     <FormMessage />
                   </FormItem>
                 )}
@@ -341,14 +340,14 @@ export default function VoteForm() {
               <div className="ml-auto">
                 <FormField
                   control={control}
-                  name="voteStartNow"
+                  name="pollStartNow"
                   render={({field}) => (
                     <FormItem>
-                      <VoteContent name={field.name} type="label" />
+                      <PollContent name={field.name} type="label" />
                       <FormControl className="ml-4">
                         <Switch checked={field.value} onCheckedChange={field.onChange} />
                       </FormControl>
-                      <VoteContent name={field.name} type="description" />
+                      <PollContent name={field.name} type="description" />
                       <FormMessage />
                     </FormItem>
                   )}

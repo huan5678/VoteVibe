@@ -2,7 +2,7 @@
 
 import {Drawer} from 'vaul';
 
-import VoteForm from './VoteForm';
+import PollForm from './PollForm';
 
 export default function VoteDrawer() {
   return (
@@ -13,7 +13,7 @@ export default function VoteDrawer() {
       <Drawer.Portal>
         <Drawer.Overlay className="fixed inset-0 bg-black/40" />
         <Drawer.Content className="fixed bottom-0 left-0 right-0 mt-24 flex h-[96%] flex-col overflow-hidden rounded-t-[10px] bg-zinc-100">
-          <VoteForm />
+          <PollForm />
         </Drawer.Content>
       </Drawer.Portal>
     </Drawer.Root>

@@ -81,7 +81,7 @@
     "zod": "3.21.4"
   },
   "devDependencies": {
-    "@prisma/client": "4.16.2",
+    "@prisma/client": "5.1.1",
     "@supabase/auth-helpers-nextjs": "latest",
     "@supabase/supabase-js": "latest",
     "@tailwindcss/forms": "0.5.3",
@@ -104,7 +104,7 @@
     "postcss": "8.4.20",
     "prettier": "2.8.1",
     "prettier-plugin-tailwindcss": "0.2.1",
-    "prisma": "4.16.2",
+    "prisma": "5.1.1",
     "remark-gfm": "3.0.1",
     "remark-math": "5.1.1",
     "remark-toc": "8.0.1",
