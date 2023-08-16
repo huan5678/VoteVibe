@@ -27,9 +27,11 @@ const formSchema = z.object({
   pollTitle: z.string().min(2, {
     message: '標題至少要兩個字',
   }),
-  pollDescription: z.string().max(1000, {
-    message: '內容描述最多 1000 字',
-  }),
+  pollDescription: z.optional(
+    z.string().max(1000, {
+      message: '內容描述最多 1000 字',
+    })
+  ),
   pollOptions: z.array(z.object({value: z.string(), isEditing: z.boolean()})).min(1, {
     message: '至少要一個選項',
   }),
@@ -65,7 +67,7 @@ export default function PollForm() {
 
   useEffect(() => {
     const fetchRandomImage = async () => {
-      const res = await fetch('/api/getRandomImage');
+      const res = await fetch('/api/getRandomImage?images');
       const data = await res.json();
       reset({
         ...form.getValues(),
@@ -77,7 +79,7 @@ export default function PollForm() {
       setDefaultEndTime(sevenDaysFromNow);
     };
     fetchRandomImage();
-  }, []);
+  }, [form, reset]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -92,7 +94,7 @@ export default function PollForm() {
     };
   }, []);
 
-  const {fields, append, remove} = useFieldArray({
+  const {fields, remove} = useFieldArray({
     control,
     name: 'pollOptions',
   });
@@ -337,14 +339,14 @@ export default function PollForm() {
                   </FormItem>
                 )}
               />
-              <div className="ml-auto">
+              <div className="ms-auto">
                 <FormField
                   control={control}
                   name="pollStartNow"
                   render={({field}) => (
                     <FormItem>
                       <PollContent name={field.name} type="label" />
-                      <FormControl className="ml-4">
+                      <FormControl className="ms-4">
                         <Switch checked={field.value} onCheckedChange={field.onChange} />
                       </FormControl>
                       <PollContent name={field.name} type="description" />
@@ -354,7 +356,7 @@ export default function PollForm() {
                 />
               </div>
             </div>
-            <Button type="submit" className="ml-auto">
+            <Button type="submit" className="ms-auto">
               發起新投票
             </Button>
           </form>

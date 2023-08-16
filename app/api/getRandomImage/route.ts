@@ -2,7 +2,8 @@ import fs from "fs";
 import path from "path";
 
 export async function GET(request: Request) {
-  const directoryPath = path.join(process.cwd(), "public", "images");
+  const folder = request.url.split('?')[1];
+  const directoryPath = path.join(process.cwd(), 'public', folder);
   const files = await fs.promises.readdir(directoryPath);
   const randomImage = files[Math.floor(Math.random() * files.length)];
 

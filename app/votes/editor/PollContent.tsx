@@ -3,7 +3,7 @@ import {FormDescription, FormLabel} from '#/components/ui/form';
 type PollContentProps = {
   name: string;
   type: 'label' | 'description';
-  value?: unknown;
+  value: string;
 };
 
 const PollContent: React.FC<PollContentProps> = ({name, type, value}) => {
@@ -11,11 +11,11 @@ const PollContent: React.FC<PollContentProps> = ({name, type, value}) => {
     case 'label':
       const title =
         name === 'pollTitle'
-          ? '投票活動命題'
+          ? '投票活動命題*'
           : name === 'pollPrivateType'
           ? '是否公開'
           : name === 'pollOptions'
-          ? '投票項目'
+          ? '投票項目*'
           : name === 'pollImageUrl'
           ? '投票活動封面'
           : name === 'pollDescription'
@@ -27,7 +27,18 @@ const PollContent: React.FC<PollContentProps> = ({name, type, value}) => {
           : name === 'pollStartNow'
           ? '立即開始'
           : null;
-      return <FormLabel>{title}</FormLabel>;
+      return (
+        <FormLabel>
+          {title && title.search(/\*/g) !== -1 ? (
+            <>
+              {title.replace('*', '')}
+              <span className="ms-1 text-red-500">*</span>
+            </>
+          ) : (
+            title
+          )}
+        </FormLabel>
+      );
     case 'description':
       const description =
         name === 'pollTitle'

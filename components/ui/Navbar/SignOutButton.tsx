@@ -1,5 +1,3 @@
-'use client';
-
 import {useRouter} from 'next/navigation';
 import {useSupabase} from '#/components/providers/supabase-provider';
 import {Button} from '../button';

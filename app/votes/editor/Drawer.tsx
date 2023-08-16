@@ -1,5 +1,3 @@
-'use client';
-
 import {Drawer} from 'vaul';
 
 import PollForm from './PollForm';

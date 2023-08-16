@@ -15,7 +15,7 @@ import {Button} from '#/components/ui/button';
 import {Separator} from '#/components/ui/separator';
 
 import 'remixicon/fonts/remixicon.css';
-import {DeviceType, VoteFormValues} from '#/types';
+import {DeviceType, PollFormValues} from '#/types';
 
 type MenuItemProps = {
   icon: string;
@@ -224,8 +224,8 @@ const MenuBar: React.FC<MenuBarProps> = ({editor, device}) => {
 };
 
 type TipTapEditProps = {
-  form: UseFormReturn<VoteFormValues, any, undefined>;
-  field: ControllerRenderProps<VoteFormValues, 'voteDescription'>;
+  form: UseFormReturn<PollFormValues, any, undefined>;
+  field: ControllerRenderProps<PollFormValues, 'pollDescription'>;
   device: DeviceType;
 };
 
